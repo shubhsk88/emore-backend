@@ -7,12 +7,12 @@ import { RestaurantService } from './restaurants.service';
 export class RestaurantResolver {
   constructor(private readonly restaurantService: RestaurantService) {}
   @Query((returns) => [Restaurant])
-  getAll(): Promise<Restaurant[]> {
+  restaurants(): Promise<Restaurant[]> {
     return this.restaurantService.getAll();
   }
 
   @Mutation((returns) => Boolean)
   createRestaurant(@Args() createRestaurantDto: CreateRestaurantDto) {
-    return true;
+    return this.restaurantService.createRestaurant(createRestaurantDto);
   }
 }
