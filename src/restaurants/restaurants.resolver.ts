@@ -12,7 +12,7 @@ export class RestaurantResolver {
   }
 
   @Mutation((returns) => Boolean)
-  createRestaurant(@Args() createRestaurantDto: CreateRestaurantDto) {
+  createRestaurant(@Args('input') createRestaurantDto: CreateRestaurantDto) {
     return this.restaurantService.createRestaurant(createRestaurantDto);
   }
 }
