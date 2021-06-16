@@ -6,6 +6,7 @@ import {
   CreateAccountInput,
   CreateAccountOutput,
 } from './dtos/create-acount-dto';
+import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -36,4 +37,11 @@ export class UsersService {
       return { ok: false, error: 'Something went wrong. Please try again' };
     }
   }
+  // async login({ email, password }: LoginInput): Promise<LoginOutput> {
+  //   const existingUser = await this.users.findOne({ email });
+  //   if (existingUser) {
+  //   cons
+  //   }
+
+  // }
 }
