@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -53,10 +53,10 @@ export class UsersService {
         { id: existingUser.id },
         this.config.get('JWT_SECRET'),
       );
-      console.log(token);
+
       return { ok: true, token };
     } catch (error) {
-      return { ok: false, error };
+      return { ok: false, error: 'Something went wrong' };
     }
   }
 }
