@@ -6,6 +6,7 @@ import * as Joi from 'joi';
 import { User } from './users/entities/user.entity';
 
 import { UsersModule } from './users/users.module';
+import { JwtModule } from './jwt/jwt.module';
 
 @Module({
   imports: [
@@ -41,6 +42,8 @@ import { UsersModule } from './users/users.module';
     }),
 
     UsersModule,
+
+    JwtModule,
   ],
   controllers: [],
   providers: [],
