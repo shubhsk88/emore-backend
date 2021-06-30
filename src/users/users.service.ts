@@ -8,7 +8,7 @@ import {
 } from './dtos/create-acount-dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
-
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
   constructor(
@@ -37,11 +37,19 @@ export class UsersService {
       return { ok: false, error: 'Something went wrong. Please try again' };
     }
   }
-  // async login({ email, password }: LoginInput): Promise<LoginOutput> {
-  //   const existingUser = await this.users.findOne({ email });
-  //   if (existingUser) {
-  //   cons
-  //   }
-
-  // }
+  async login({ email, password }: LoginInput): Promise<LoginOutput> {
+    try {
+      const existingUser = await this.users.findOne({ email });
+      if (!existingUser) {
+        return { ok: false, error: 'User not found' };
+      }
+      const isPasswordCorrect = await existingUser.checkPassword(password);
+      if (!isPasswordCorrect) {
+        return { ok: false, error: 'The username or password is wrong' };
+      }
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: 'Something went wrong' };
+    }
+  }
 }
