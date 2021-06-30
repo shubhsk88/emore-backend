@@ -23,6 +23,7 @@ import { UsersModule } from './users/users.module';
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
         DB_DATABASE: Joi.string().required(),
+        JWT_SECRET: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -34,7 +35,6 @@ import { UsersModule } from './users/users.module';
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'production',
       entities: [User],
-      logging: true,
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,

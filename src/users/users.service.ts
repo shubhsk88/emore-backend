@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Injector } from '@nestjs/core/injector/injector';
+import jwt from 'jsonwebtoken';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -9,10 +9,12 @@ import {
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
+    private readonly config: ConfigService,
   ) {}
 
   async createAccount({
@@ -47,9 +49,14 @@ export class UsersService {
       if (!isPasswordCorrect) {
         return { ok: false, error: 'The username or password is wrong' };
       }
-      return { ok: true };
+      const token = jwt.sign(
+        { id: existingUser.id },
+        this.config.get('JWT_SECRET'),
+      );
+      console.log(token);
+      return { ok: true, token };
     } catch (error) {
-      return { ok: false, error: 'Something went wrong' };
+      return { ok: false, error };
     }
   }
 }
