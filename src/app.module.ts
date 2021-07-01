@@ -43,7 +43,7 @@ import { JwtModule } from './jwt/jwt.module';
 
     UsersModule,
 
-    JwtModule,
+    JwtModule.forRoot(),
   ],
   controllers: [],
   providers: [],
