@@ -58,4 +58,7 @@ export class UsersService {
       return { ok: false, error: 'Something went wrong' };
     }
   }
+  async findById(userId: number): Promise<User> {
+    return this.users.findOne({ id: userId });
+  }
 }
