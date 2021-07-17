@@ -11,6 +11,8 @@ import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from 'src/jwt/jwt.service';
+import { UpdateProfileInput } from './dtos/update-accoun.dto';
+import { MutationOutput } from 'src/common/dtos/mutation.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -60,5 +62,18 @@ export class UsersService {
   }
   async findById(userId: number): Promise<User> {
     return this.users.findOne({ id: userId });
+  }
+  async updateProfile(
+    userId: number,
+    updateProfileInput: UpdateProfileInput,
+  ): Promise<MutationOutput> {
+    try {
+      console.log(userId, updateProfileInput);
+      await this.users.update(userId, { ...updateProfileInput });
+      return { ok: true };
+    } catch (error) {
+      console.log(error);
+      return { ok: false, error };
+    }
   }
 }

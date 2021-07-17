@@ -2,11 +2,13 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { MutationOutput } from 'src/common/dtos/mutation.dto';
 import {
   CreateAccountOutput,
   CreateAccountInput,
 } from './dtos/create-acount-dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
+import { UpdateProfileInput } from './dtos/update-accoun.dto';
 import { UserProfileInput, UserProfileOutput } from './dtos/user-profile.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -63,6 +65,20 @@ export class UsersResolver {
       return { ok: true, user };
     } catch (error) {
       return { ok: false, error: 'User not found' };
+    }
+  }
+
+  @Mutation((returns) => MutationOutput)
+  @UseGuards(AuthGuard)
+  async updateProfile(
+    @Args('data') updateProfileData: UpdateProfileInput,
+    @AuthUser() user: User,
+  ): Promise<MutationOutput> {
+    if (!user) return { ok: false, error: "User doesn't exist" };
+    try {
+      return await this.usersService.updateProfile(user.id, updateProfileData);
+    } catch (error) {
+      return { ok: false, error };
     }
   }
 }
