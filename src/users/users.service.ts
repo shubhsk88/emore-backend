@@ -65,11 +65,17 @@ export class UsersService {
   }
   async updateProfile(
     userId: number,
-    updateProfileInput: UpdateProfileInput,
+    { email, password }: UpdateProfileInput,
   ): Promise<MutationOutput> {
     try {
-      console.log(userId, updateProfileInput);
-      await this.users.update(userId, { ...updateProfileInput });
+      const user = await this.users.findOne(userId);
+      if (email) {
+        user.email = email;
+      }
+      if (password) {
+        user.password = password;
+      }
+      this.users.save(user);
       return { ok: true };
     } catch (error) {
       console.log(error);
