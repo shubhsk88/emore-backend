@@ -13,10 +13,13 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from 'src/jwt/jwt.service';
 import { UpdateProfileInput } from './dtos/update-accoun.dto';
 import { MutationOutput } from 'src/common/dtos/mutation.dto';
+import { Verification } from './entities/verification.entity';
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
+    @InjectRepository(Verification)
+    private readonly verifications: Repository<Verification>,
 
     private readonly jwtService: JwtService,
   ) {}
@@ -36,7 +39,10 @@ export class UsersService {
             'This email is already register in the system.Please try login instead ',
         };
       }
-      await this.users.save(this.users.create({ email, password, role }));
+      const user = await this.users.save(
+        this.users.create({ email, password, role }),
+      );
+      await this.verifications.save(this.verifications.create({ user }));
       return { ok: true };
     } catch (error) {
       console.log(error);
@@ -71,6 +77,8 @@ export class UsersService {
       const user = await this.users.findOne(userId);
       if (email) {
         user.email = email;
+        user.verified = false;
+        await this.verifications.save(this.verifications.create({ user }));
       }
       if (password) {
         user.password = password;
