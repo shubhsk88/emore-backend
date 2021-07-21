@@ -14,6 +14,8 @@ import { JwtService } from 'src/jwt/jwt.service';
 import { UpdateProfileInput } from './dtos/update-accoun.dto';
 import { MutationOutput } from 'src/common/dtos/mutation.dto';
 import { Verification } from './entities/verification.entity';
+import { Args } from '@nestjs/graphql';
+import { VerifyEmailnput } from './dtos/verify-email.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -87,6 +89,25 @@ export class UsersService {
       return { ok: true };
     } catch (error) {
       console.log(error);
+      return { ok: false, error };
+    }
+  }
+  async verifyEmail({ code }: VerifyEmailnput): Promise<MutationOutput> {
+    try {
+      const verified = await this.verifications.findOne(
+        { code },
+        {
+          relations: ['user'],
+        },
+      );
+
+      if (verified) {
+        verified.user.verified = true;
+        await this.users.save(verified.user);
+        return { ok: true };
+      }
+      return { ok: false, error: 'The verification code is incorrect' };
+    } catch (error) {
       return { ok: false, error };
     }
   }

@@ -10,6 +10,7 @@ import {
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { UpdateProfileInput } from './dtos/update-accoun.dto';
 import { UserProfileInput, UserProfileOutput } from './dtos/user-profile.dto';
+import { VerifyEmailnput } from './dtos/verify-email.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
@@ -74,9 +75,19 @@ export class UsersResolver {
     @Args('data') updateProfileData: UpdateProfileInput,
     @AuthUser() user: User,
   ): Promise<MutationOutput> {
-    if (!user) return { ok: false, error: "User doesn't exist" };
     try {
       return await this.usersService.updateProfile(user.id, updateProfileData);
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
+  @Mutation((returns) => MutationOutput)
+  async verifyEmail(
+    @Args('input') verifyEmailInput: VerifyEmailnput,
+  ): Promise<MutationOutput> {
+    try {
+      return await this.usersService.verifyEmail(verifyEmailInput);
     } catch (error) {
       return { ok: false, error };
     }
