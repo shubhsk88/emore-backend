@@ -26,25 +26,12 @@ export class UsersResolver {
   async createAccount(
     @Args('input') createAccountInput: CreateAccountInput,
   ): Promise<CreateAccountOutput> {
-    try {
-      const result = await this.usersService.createAccount(createAccountInput);
-      return result;
-    } catch (error) {
-      return {
-        ok: false,
-        error,
-      };
-    }
+    return await this.usersService.createAccount(createAccountInput);
   }
 
   @Mutation((returns) => LoginOutput)
   async login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
-    try {
-      const result = await this.usersService.login(loginInput);
-      return result;
-    } catch (error) {
-      return { ok: false, error };
-    }
+    return await this.usersService.login(loginInput);
   }
 
   @Query((returns) => User)
@@ -75,21 +62,13 @@ export class UsersResolver {
     @Args('data') updateProfileData: UpdateProfileInput,
     @AuthUser() user: User,
   ): Promise<MutationOutput> {
-    try {
-      return await this.usersService.updateProfile(user.id, updateProfileData);
-    } catch (error) {
-      return { ok: false, error };
-    }
+    return await this.usersService.updateProfile(user.id, updateProfileData);
   }
 
   @Mutation((returns) => MutationOutput)
   async verifyEmail(
     @Args('input') verifyEmailInput: VerifyEmailnput,
   ): Promise<MutationOutput> {
-    try {
-      return await this.usersService.verifyEmail(verifyEmailInput);
-    } catch (error) {
-      return { ok: false, error };
-    }
+    return await this.usersService.verifyEmail(verifyEmailInput);
   }
 }
