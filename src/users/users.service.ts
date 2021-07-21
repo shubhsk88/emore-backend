@@ -53,7 +53,10 @@ export class UsersService {
   }
   async login({ email, password }: LoginInput): Promise<LoginOutput> {
     try {
-      const existingUser = await this.users.findOne({ email });
+      const existingUser = await this.users.findOne(
+        { email },
+        { select: ['password', 'id'] },
+      );
       if (!existingUser) {
         return { ok: false, error: 'User not found' };
       }
