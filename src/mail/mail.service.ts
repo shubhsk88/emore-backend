@@ -1,5 +1,6 @@
 import { Global, Inject, Injectable } from '@nestjs/common';
-import got from 'got';
+
+import * as Mailgun from 'mailgun-js';
 import * as FormData from 'form-data';
 
 import { CONFIG_OPTIONS } from '../common/common.constant';
@@ -15,25 +16,31 @@ export class MailService {
   }
 
   async sendEmail(subject: string, content: string, to: string) {
-    const form = new FormData();
-    form.append('from', this.options.email);
-    form.append('to', to);
-    form.append('subject', subject);
-    form.append('text', content);
+    const mailgun = Mailgun({
+      apiKey: this.options.apiKey,
+      domain: this.options.domain,
+    });
+    const data = {
+      from: this.options.email,
+      to,
+      subject,
+      text: content,
+    };
     try {
-      const response = await got(
-        `https://api.mailgun.net/v3/${this.options.domain}{/message`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Basic ${Buffer.from(
-              `api:${this.options.apiKey}`,
-            ).toString('base64')}`,
-          },
-          body: form,
-        },
-      );
-      console.log(response.body);
+      try {
+        const result = await new Promise((resolve, reject) => {
+          mailgun.messages().send(data, function (error, body) {
+            if (body) {
+              resolve(body);
+            } else {
+              reject(error);
+            }
+          });
+        });
+        console.log(result);
+      } catch (error) {
+        console.log(error);
+      }
     } catch (error) {
       console.log(error);
     }
