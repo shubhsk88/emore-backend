@@ -107,6 +107,7 @@ export class UsersService {
       if (verified) {
         verified.user.verified = true;
         await this.users.save(verified.user);
+        await this.verifications.delete(verified.id);
         return { ok: true };
       }
       return { ok: false, error: 'The verification code is incorrect' };

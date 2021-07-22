@@ -10,6 +10,7 @@ import { JwtModule } from './jwt/jwt.module';
 import { MiddlewareConsumer } from '@nestjs/common';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { Verification } from './users/entities/verification.entity';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -28,6 +29,9 @@ import { Verification } from './users/entities/verification.entity';
         DB_PASSWORD: Joi.string().required(),
         DB_DATABASE: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
+        MAILGUN_KEY: Joi.string().required(),
+        MAILGUN_DOMAIN: Joi.string().required(),
+        MAILGUN_EMAIL: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -45,6 +49,11 @@ import { Verification } from './users/entities/verification.entity';
       context: async ({ req }) => ({ user: req['user'] }),
     }),
 
+    MailModule.forRoot({
+      apiKey: process.env.MAILGUN_KEY,
+      domain: process.env.MAILGUN_DOMAIN,
+      email: process.env.MAILGUN_EMAIL,
+    }),
     UsersModule,
 
     JwtModule.forRoot({ privateKey: process.env.JWT_SECRET }),
