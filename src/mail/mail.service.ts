@@ -1,7 +1,6 @@
 import { Global, Inject, Injectable } from '@nestjs/common';
 
 import * as Mailgun from 'mailgun-js';
-import * as FormData from 'form-data';
 
 import { CONFIG_OPTIONS } from '../common/common.constant';
 import { MailModuleOptions } from './interfaces/mail.interfaces';
@@ -11,9 +10,7 @@ import { MailModuleOptions } from './interfaces/mail.interfaces';
 export class MailService {
   constructor(
     @Inject(CONFIG_OPTIONS) private readonly options: MailModuleOptions,
-  ) {
-    this.sendEmail('Hello', 'World', 'shubham88singh@gmail.com');
-  }
+  ) {}
 
   async sendEmail(subject: string, content: string, to: string) {
     const mailgun = Mailgun({
@@ -24,7 +21,8 @@ export class MailService {
       from: this.options.email,
       to,
       subject,
-      text: content,
+      template: 'email-confirmation',
+      'h:X-Mailgun-Variables': '{"username": "Shubham","code":"123214"}',
     };
     try {
       try {
