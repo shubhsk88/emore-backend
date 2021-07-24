@@ -12,7 +12,7 @@ export class MailService {
     @Inject(CONFIG_OPTIONS) private readonly options: MailModuleOptions,
   ) {}
 
-  async sendEmail(
+  private async sendEmail(
     subject: string,
     template: string,
     to: string,
