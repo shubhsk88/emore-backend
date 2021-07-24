@@ -16,6 +16,7 @@ import { MutationOutput } from 'src/common/dtos/mutation.dto';
 import { Verification } from './entities/verification.entity';
 import { Args } from '@nestjs/graphql';
 import { VerifyEmailnput } from './dtos/verify-email.dto';
+import { MailService } from 'src/mail/mail.service';
 @Injectable()
 export class UsersService {
   constructor(
@@ -24,6 +25,7 @@ export class UsersService {
     private readonly verifications: Repository<Verification>,
 
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async createAccount({
@@ -44,7 +46,10 @@ export class UsersService {
       const user = await this.users.save(
         this.users.create({ email, password, role }),
       );
-      await this.verifications.save(this.verifications.create({ user }));
+      const verification = await this.verifications.save(
+        this.verifications.create({ user }),
+      );
+      this.mailService.sendVerificationEmail(email, verification.code, email);
       return { ok: true };
     } catch (error) {
       console.log(error);
@@ -83,7 +88,10 @@ export class UsersService {
       if (email) {
         user.email = email;
         user.verified = false;
-        await this.verifications.save(this.verifications.create({ user }));
+        const verification = await this.verifications.save(
+          this.verifications.create({ user }),
+        );
+        this.mailService.sendVerificationEmail(email, verification.code, email);
       }
       if (password) {
         user.password = password;
