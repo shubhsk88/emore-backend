@@ -51,7 +51,6 @@ export class UsersService {
       this.mailService.sendVerificationEmail(email, verification.code, email);
       return { ok: true };
     } catch (error) {
-      console.log(error);
       return { ok: false, error: 'Something went wrong. Please try again' };
     }
   }

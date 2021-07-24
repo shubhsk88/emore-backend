@@ -10,9 +10,9 @@ import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
 
 enum UserRole {
-  Client = 'client',
-  Owner = 'owner',
-  Delivery = 'delivery',
+  Client,
+  Owner,
+  Delivery,
 }
 
 registerEnumType(UserRole, { name: 'UserRole' });
