@@ -8,13 +8,12 @@ import {
 } from './dtos/create-acount-dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
-import * as bcrypt from 'bcrypt';
-import { ConfigService } from '@nestjs/config';
+
 import { JwtService } from 'src/jwt/jwt.service';
 import { UpdateProfileInput } from './dtos/update-accoun.dto';
 import { MutationOutput } from 'src/common/dtos/mutation.dto';
 import { Verification } from './entities/verification.entity';
-import { Args } from '@nestjs/graphql';
+
 import { VerifyEmailnput } from './dtos/verify-email.dto';
 import { MailService } from 'src/mail/mail.service';
 @Injectable()
