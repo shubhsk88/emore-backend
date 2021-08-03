@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -45,6 +44,7 @@ export class UsersService {
       const user = await this.users.save(
         this.users.create({ email, password, role }),
       );
+
       const verification = await this.verifications.save(
         this.verifications.create({ user }),
       );
