@@ -121,17 +121,19 @@ describe('User Service', () => {
       email: 'abc@email.com',
       password: '12345',
     };
-    it(`should fail if the user doesn't exist`,async () => {
-      userRepository.findOne.mockResolvedValue(undefined)
-      const result = await service.login(loginAccountArgs)
-      expect(result).toEqual({ ok: false, error: 'User not found' };)
+    it(`should fail if the user doesn't exist`, async () => {
+      userRepository.findOne.mockResolvedValue(null);
+      const result = await service.login(loginAccountArgs);
+      expect(userRepository.findOne).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.any(Object),
+      );
       
-  });
-  it('should fail if the password is wrong', () => {
-    // userRepository.findOne.mockResolvedValue()
-
-
-  })
+      expect(result).toEqual({ ok: false, error: 'User not found' });
+    });
+    it('should fail if the password is wrong', () => {
+      // userRepository.findOne.mockResolvedValue()
+    });
   });
   it.todo('findById');
   it.todo('updateProfile');
