@@ -107,8 +107,32 @@ describe('User Service', () => {
       );
       expect(result).toEqual({ ok: true });
     });
+    it('should fail on the exception', async () => {
+      userRepository.findOne.mockRejectedValue(new Error('hello world'));
+      const result = await service.createAccount(createAccountArgs);
+      expect(result).toEqual({
+        ok: false,
+        error: 'Something went wrong. Please try again',
+      });
+    });
   });
-  it.todo('login');
+  describe('login', () => {
+    const loginAccountArgs = {
+      email: 'abc@email.com',
+      password: '12345',
+    };
+    it(`should fail if the user doesn't exist`,async () => {
+      userRepository.findOne.mockResolvedValue(undefined)
+      const result = await service.login(loginAccountArgs)
+      expect(result).toEqual({ ok: false, error: 'User not found' };)
+      
+  });
+  it('should fail if the password is wrong', () => {
+    // userRepository.findOne.mockResolvedValue()
+
+
+  })
+  });
   it.todo('findById');
   it.todo('updateProfile');
   it.todo('verifyEmail');
