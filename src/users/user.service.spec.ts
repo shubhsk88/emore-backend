@@ -26,8 +26,9 @@ describe('User Service', () => {
   let userRepository: MockRepository<User>;
   let verificationRepository: MockRepository<Verification>;
   let emailService: MailService;
+  let jwtService: JwtService;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
         UsersService,
@@ -53,6 +54,7 @@ describe('User Service', () => {
     userRepository = module.get(getRepositoryToken(User));
     verificationRepository = module.get(getRepositoryToken(Verification));
     emailService = module.get<MailService>(MailService);
+    jwtService = module.get<JwtService>(JwtService);
   });
 
   it('should be defined', () => {
@@ -128,11 +130,41 @@ describe('User Service', () => {
         expect.any(Object),
         expect.any(Object),
       );
-      
+
       expect(result).toEqual({ ok: false, error: 'User not found' });
     });
-    it('should fail if the password is wrong', () => {
+    it('should fail if the password is wrong', async () => {
+      const mockedUser = {
+        id: 1,
+        checkPassword: jest.fn(() => Promise.resolve(false)),
+      };
+      userRepository.findOne.mockResolvedValue(mockedUser);
+      const result = await service.login(loginAccountArgs);
+      expect(result).toEqual({
+        ok: false,
+        error: 'The username or password is wrong',
+      });
       // userRepository.findOne.mockResolvedValue()
+    });
+    it('should return the token', async () => {
+      const mockedUser = {
+        id: 1,
+        checkPassword: jest.fn(() => Promise.resolve(true)),
+      };
+      const token = '123';
+      mockJwtRepository.sign.mockReturnValue(token);
+      userRepository.findOne.mockResolvedValue(mockedUser);
+      const result = await service.login(loginAccountArgs);
+      expect(jwtService.sign).toHaveBeenCalledWith(expect.any(Object));
+      expect(result).toEqual({ ok: true, token });
+    });
+    it('should fail on the exception', async () => {
+      userRepository.findOne.mockRejectedValue(new Error('hello world'));
+      const result = await service.login(loginAccountArgs);
+      expect(result).toEqual({
+        ok: false,
+        error: 'Something went wrong',
+      });
     });
   });
   it.todo('findById');
