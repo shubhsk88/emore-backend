@@ -15,6 +15,7 @@ import { Verification } from './entities/verification.entity';
 
 import { VerifyEmailnput } from './dtos/verify-email.dto';
 import { MailService } from 'src/mail/mail.service';
+import { UserProfileOutput } from './dtos/user-profile.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -74,8 +75,13 @@ export class UsersService {
       return { ok: false, error: 'Something went wrong' };
     }
   }
-  async findById(userId: number): Promise<User> {
-    return this.users.findOne({ id: userId });
+  async findById(userId: number): Promise<UserProfileOutput> {
+    try {
+      const user = await this.users.findOneOrFail({ id: userId });
+      return { ok: true, user };
+    } catch (error) {
+      return { ok: false, error: "User doesn't exist" };
+    }
   }
   async updateProfile(
     userId: number,
