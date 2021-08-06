@@ -183,6 +183,45 @@ describe('User Service', () => {
       expect(result).toEqual({ ok: false, error: "User doesn't exist" });
     });
   });
-  it.todo('updateProfile');
+  describe('updateProfile', () => {
+    it('should change email', async () => {
+      const oldUser = {
+        email: 'user@abc.com',
+        verified: true,
+      };
+      const editProfileArgs = {
+        userId: 1,
+        input: { email: 'abc@mail.com' },
+      };
+      const newUser = {
+        email: 'abc@mail.com',
+        verified: false,
+      };
+      const verification = {
+        code: 'abc',
+        user: newUser,
+      };
+      userRepository.findOne.mockResolvedValue(oldUser);
+      verificationRepository.create.mockReturnValue(verification);
+      verificationRepository.save.mockResolvedValue(verification);
+      const result = await service.updateProfile(
+        editProfileArgs.userId,
+        editProfileArgs.input,
+      );
+      expect(userRepository.findOne).toHaveBeenCalledWith(
+        editProfileArgs.userId,
+      );
+      expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(verificationRepository.create).toHaveBeenCalledWith({
+        user: newUser,
+      });
+      expect(verificationRepository.save).toHaveBeenCalledWith(verification);
+      expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
+        newUser.email,
+        verification.code,
+        newUser.email,
+      );
+    });
+  });
   it.todo('verifyEmail');
 });
