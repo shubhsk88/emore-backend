@@ -104,7 +104,7 @@ export class UsersService {
       return { ok: true };
     } catch (error) {
       console.log(error);
-      return { ok: false, error };
+      return { ok: false, error:"Something went wrong" };
     }
   }
   async verifyEmail({ code }: VerifyEmailnput): Promise<MutationOutput> {

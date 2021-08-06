@@ -222,6 +222,54 @@ describe('User Service', () => {
         newUser.email,
       );
     });
+    it('should change password', async () => {
+      const oldUser = {
+        email: 'user@abc.com',
+        verified: true,
+      };
+      const editProfileArgs = {
+        userId: 1,
+        input: { password: 'abcd' },
+      };
+      const newUser = {
+        email: 'user@abc.com',
+        password: 'abcd',
+        verified: true,
+      };
+      const verification = {
+        code: 'abc',
+        user: newUser,
+      };
+      userRepository.findOne.mockResolvedValue(oldUser);
+      verificationRepository.create.mockReturnValue(verification);
+      verificationRepository.save.mockResolvedValue(verification);
+      const result = await service.updateProfile(
+        editProfileArgs.userId,
+        editProfileArgs.input,
+      );
+      expect(userRepository.findOne).toHaveBeenCalledWith(
+        editProfileArgs.userId,
+      );
+      expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith(newUser);
+      expect(result).toEqual({ ok: true });
+    });
+    it('should return on exception', async () => {
+      const oldUser = {
+        email: 'user@abc.com',
+        verified: true,
+      };
+      const editProfileArgs = {
+        userId: 1,
+        input: { password: 'abcd' },
+      };
+      userRepository.findOne.mockRejectedValue(new Error('hello'));
+      const result = await service.updateProfile(
+        editProfileArgs.userId,
+        editProfileArgs.input,
+      );
+      expect(result).toEqual({ ok: false, error: 'Something went wrong' });
+    });
   });
   it.todo('verifyEmail');
 });
