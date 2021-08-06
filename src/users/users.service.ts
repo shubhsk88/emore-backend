@@ -103,13 +103,12 @@ export class UsersService {
       this.users.save(user);
       return { ok: true };
     } catch (error) {
-      console.log(error);
-      return { ok: false, error:"Something went wrong" };
+      return { ok: false, error: 'Something went wrong' };
     }
   }
   async verifyEmail({ code }: VerifyEmailnput): Promise<MutationOutput> {
     try {
-      const verified = await this.verifications.findOne(
+      const verified = await this.verifications.findOneOrFail(
         { code },
         {
           relations: ['user'],
@@ -122,9 +121,8 @@ export class UsersService {
         await this.verifications.delete(verified.id);
         return { ok: true };
       }
-      return { ok: false, error: 'The verification code is incorrect' };
     } catch (error) {
-      return { ok: false, error };
+      return { ok: false, error: 'The verification code is incorrect' };
     }
   }
 }

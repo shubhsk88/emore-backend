@@ -12,6 +12,7 @@ const mockRepository = () => ({
   save: jest.fn(),
   create: jest.fn(),
   findOneOrFail: jest.fn(),
+  delete: jest.fn(),
 });
 const mockJwtRepository = {
   sign: jest.fn(),
@@ -271,5 +272,62 @@ describe('User Service', () => {
       expect(result).toEqual({ ok: false, error: 'Something went wrong' });
     });
   });
-  it.todo('verifyEmail');
+  describe('verifyEmail', () => {
+    it('Should verify the user', async () => {
+      const oldUser = {
+        email: 'user@abc.com',
+        verified: false,
+      };
+      const verification = {
+        code: 'abc',
+        id: 1,
+        user: oldUser,
+      };
+      verificationRepository.findOneOrFail.mockResolvedValue(verification);
+
+      const result = await service.verifyEmail({ code: 'abc' });
+      expect(verificationRepository.findOneOrFail).toBeCalledWith(
+        {
+          code: verification.code,
+        },
+        {
+          relations: ['user'],
+        },
+      );
+
+      expect(userRepository.save).toHaveBeenCalledWith(verification.user);
+      expect(verificationRepository.delete).toHaveBeenCalledWith(
+        verification.id,
+      );
+      expect(result).toEqual({ ok: true });
+    });
+    it('should return false on exception', async () => {
+      const oldUser = {
+        email: 'user@abc.com',
+        verified: true,
+      };
+      const verification = {
+        code: 'abc',
+        id: 1,
+        user: oldUser,
+      };
+
+      verificationRepository.findOneOrFail.mockRejectedValue(
+        new Error('hello'),
+      );
+      const result = await service.verifyEmail({ code: 'abc' });
+      expect(verificationRepository.findOneOrFail).toBeCalledWith(
+        {
+          code: verification.code,
+        },
+        {
+          relations: ['user'],
+        },
+      );
+      expect(result).toEqual({
+        ok: false,
+        error: 'The verification code is incorrect',
+      });
+    });
+  });
 });
