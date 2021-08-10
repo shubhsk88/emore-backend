@@ -13,4 +13,11 @@ describe('UserModule', () => {
     app = module.createNestApplication();
     await app.init();
   });
+
+  it.todo('me');
+  it.todo('userProfile');
+  it.todo('createAccount');
+  it.todo('login');
+  it.todo('updateProfile');
+  it.todo('verifyEmail');
 });

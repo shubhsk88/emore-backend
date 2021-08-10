@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing';
 import { CONFIG_OPTIONS } from 'src/common/common.constant';
 import { MailService } from './mail.service';
 
-
 describe('MailService', () => {
   let service: MailService;
   beforeEach(async () => {
