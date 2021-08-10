@@ -68,7 +68,7 @@ export class UsersService {
       if (!isPasswordCorrect) {
         return { ok: false, error: 'The username or password is wrong' };
       }
-      const token = this.jwtService.sign({ id: existingUser.id });
+      const token = this.jwtService.sign(existingUser.id);
 
       return { ok: true, token };
     } catch (error) {

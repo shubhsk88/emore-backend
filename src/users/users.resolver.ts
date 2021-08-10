@@ -50,7 +50,7 @@ export class UsersResolver {
       if (!user) {
         throw new Error();
       }
-      return { ok: true, user };
+      return user;
     } catch (error) {
       return { ok: false, error: 'User not found' };
     }
