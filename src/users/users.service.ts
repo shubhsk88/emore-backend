@@ -49,7 +49,12 @@ export class UsersService {
       const verification = await this.verifications.save(
         this.verifications.create({ user }),
       );
-      this.mailService.sendVerificationEmail(email, verification.code, email);
+      // console.log(user, verification);
+      await this.mailService.sendVerificationEmail(
+        'info@mg.shubhski.dev',
+        verification.code,
+        email,
+      );
       return { ok: true };
     } catch (error) {
       return { ok: false, error: 'Something went wrong. Please try again' };

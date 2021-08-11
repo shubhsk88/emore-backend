@@ -23,7 +23,7 @@ export class MailService {
       domain: this.options.domain,
     });
     const str = emailVar.reduce(
-      (acc, item) => (acc[item.key] = item.value),
+      (acc, item) => ({ ...acc, [item.key]: item.value }),
       {},
     );
 
@@ -44,7 +44,6 @@ export class MailService {
           }
         });
       });
-      console.log(result);
     } catch (error) {
       console.log(error);
     }
