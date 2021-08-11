@@ -81,9 +81,52 @@ describe('UserModule', () => {
         });
     });
   });
-  it.todo('login');
-  it.todo('me');
+  describe('login', () => {
+    it('should return the token for the user if logged in', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL)
+        .send({
+          query: gql`
+            mutation {
+              login(input: { email: "shubhs@mail.com", password: "121212" }) {
+                ok
+                token
+                error
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.data.login.ok).toBe(true);
+          expect(res.body.data.login.token).toEqual(expect.any(String));
+          expect(res.body.data.login.error).toBe(null);
+        });
+    });
+    it('should return the errror if the user doesnt exist', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL)
+        .send({
+          query: gql`
+            mutation {
+              login(input: { email: "shubh@mail.com", password: "121212" }) {
+                ok
+                token
+                error
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.data.login.ok).toBe(false);
+          expect(res.body.data.login.token).toEqual(null);
+          expect(res.body.data.login.error).toEqual(expect.any(String));
+        });
+    });
+  });
   it.todo('userProfile');
+  it.todo('me');
   it.todo('verifyEmail');
   it.todo('updateProfile');
 });
