@@ -20,21 +20,22 @@ describe('UserModule', () => {
   });
   afterAll(async () => {
     await getConnection().dropDatabase();
-    app.close();
+    await app.close();
   });
 
   describe('createAccount', () => {
+    const EMAIL = 'shubhs@mail.com';
     it('should create the account', () => {
       return request(app.getHttpServer())
         .post(GRAPHQL)
         .send({
-          query: `
+          query: gql`
             mutation {
               createAccount(
                 input: {
-                  email: "shubhs@mail.com",
-                  password: "121212",
-                  role: Owner,
+                  email: "${EMAIL}"
+                  password: "121212"
+                  role: Owner
                 }
               ) {
                 ok
@@ -43,8 +44,16 @@ describe('UserModule', () => {
             }
           `,
         })
-        .expect(200);
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.data.createAccount.ok).toBe(true);
+        });
     });
+    it('should fail if the account already exists',()=>{
+        
+
+
+    })
   });
   it.todo('login');
   it.todo('me');
