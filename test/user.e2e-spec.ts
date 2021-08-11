@@ -206,7 +206,50 @@ describe('UserModule', () => {
         });
     });
   });
-  it.todo('me');
+  describe('me', () => {
+    it('Should return the current user if the jwt is passed into headers', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL)
+        .set('X-JWT', token)
+        .send({
+          query: gql`
+            {
+              me {
+                id
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: {
+              data: {
+                me: { id },
+              },
+            },
+          } = res;
+          expect(id).toEqual(expect.any(Number));
+        });
+    });
+    it('Should not allow the user if the token is not set ', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL)
+        .send({
+          query: gql`
+            {
+              me {
+                id
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.data).toBe(null)
+        });
+    });
+  });
   it.todo('verifyEmail');
   it.todo('updateProfile');
 });
