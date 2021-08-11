@@ -3,7 +3,9 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 
-import { getConnection } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
 const gql = String.raw;
 
 jest.mock('mailgun-js', () => {
@@ -16,6 +18,8 @@ jest.mock('mailgun-js', () => {
 const GRAPHQL = '/graphql';
 describe('UserModule', () => {
   let app: INestApplication;
+  let userRepository: Repository<User>;
+  let token: string;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,6 +27,7 @@ describe('UserModule', () => {
     }).compile();
 
     app = module.createNestApplication();
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
     await app.init();
   });
   afterAll(async () => {
@@ -98,6 +103,7 @@ describe('UserModule', () => {
         })
         .expect(200)
         .expect((res) => {
+          token = res.body.data.login.token;
           expect(res.body.data.login.ok).toBe(true);
           expect(res.body.data.login.token).toEqual(expect.any(String));
           expect(res.body.data.login.error).toBe(null);
@@ -125,7 +131,81 @@ describe('UserModule', () => {
         });
     });
   });
-  it.todo('userProfile');
+  describe('userProfile', () => {
+    let userId: number;
+    beforeAll(async () => {
+      const [user] = await userRepository.find();
+      userId = user.id;
+    });
+    it('should show the user if exists', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL)
+        .set('X-JWT', token)
+        .send({
+          query: gql`
+            {
+              userProfile(data: { userId: ${userId} }) {
+                ok
+                error
+                user {
+                  id
+                }
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          // console.log(res.body);
+          const {
+            body: {
+              data: {
+                userProfile: {
+                  ok,
+                  error,
+                  user: { id },
+                },
+              },
+            },
+          } = res;
+          expect(ok).toBe(true);
+          expect(error).toBe(null);
+          expect(id).toBe(userId);
+        });
+    });
+    it('should return false if user not exists', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL)
+        .set('X-JWT', token)
+        .send({
+          query: gql`
+            {
+              userProfile(data: { userId: 55 }) {
+                ok
+                error
+                user {
+                  id
+                }
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          // console.log(res.body);
+          const {
+            body: {
+              data: {
+                userProfile: { ok, error, user },
+              },
+            },
+          } = res;
+          expect(ok).toBe(false);
+          expect(error).toEqual(expect.any(String));
+          expect(user).toBe(null);
+        });
+    });
+  });
   it.todo('me');
   it.todo('verifyEmail');
   it.todo('updateProfile');
