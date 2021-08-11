@@ -6,6 +6,13 @@ import { AppModule } from '../src/app.module';
 import { getConnection } from 'typeorm';
 const gql = String.raw;
 
+jest.mock('mailgun-js', () => {
+  const mMailgun = {
+    messages: jest.fn().mockReturnThis(),
+    send: jest.fn(),
+  };
+  return jest.fn(() => mMailgun);
+});
 const GRAPHQL = '/graphql';
 describe('UserModule', () => {
   let app: INestApplication;
@@ -49,11 +56,30 @@ describe('UserModule', () => {
           expect(res.body.data.createAccount.ok).toBe(true);
         });
     });
-    it('should fail if the account already exists',()=>{
-        
-
-
-    })
+    it('should fail if the account already exists', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL)
+        .send({
+          query: gql`
+            mutation {
+              createAccount(
+                input: {
+                  email: "${EMAIL}"
+                  password: "121212"
+                  role: Owner
+                }
+              ) {
+                ok
+                error
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.data.createAccount.ok).toBe(false);
+        });
+    });
   });
   it.todo('login');
   it.todo('me');
