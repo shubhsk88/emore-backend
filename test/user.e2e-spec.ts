@@ -246,10 +246,40 @@ describe('UserModule', () => {
         })
         .expect(200)
         .expect((res) => {
-          expect(res.body.data).toBe(null)
+          expect(res.body.data).toBe(null);
+        });
+    });
+  });
+  describe('updateProfile', () => {
+    const email = 'shubham@mail.com';
+    it('should change the email', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL)
+        .set('X-JWT', token)
+        .send({
+          query: gql`
+            mutation {
+              updateProfile(data: { email: "${email}"}) {
+                ok
+                error
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          console.log(res.body);
+          const {
+            body: {
+              data: {
+                updateProfile: { ok, error },
+              },
+            },
+          } = res;
+          expect(ok).toBe(true);
+          expect(error).toBe(null);
         });
     });
   });
   it.todo('verifyEmail');
-  it.todo('updateProfile');
 });
