@@ -6,6 +6,7 @@ import { AppModule } from '../src/app.module';
 import { getConnection, Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Verification } from 'src/users/entities/verification.entity';
 const gql = String.raw;
 
 jest.mock('mailgun-js', () => {
@@ -19,6 +20,7 @@ const GRAPHQL = '/graphql';
 describe('UserModule', () => {
   let app: INestApplication;
   let userRepository: Repository<User>;
+  let verificationRepository: Repository<Verification>;
   let token: string;
 
   beforeAll(async () => {
@@ -28,6 +30,9 @@ describe('UserModule', () => {
 
     app = module.createNestApplication();
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    verificationRepository = module.get<Repository<Verification>>(
+      getRepositoryToken(Verification),
+    );
     await app.init();
   });
   afterAll(async () => {
@@ -281,5 +286,67 @@ describe('UserModule', () => {
         });
     });
   });
-  it.todo('verifyEmail');
+  describe('verifyEmail', () => {
+    let code: string;
+    beforeAll(async () => {
+      const [verified] = await verificationRepository.find();
+      code = verified.code;
+    });
+    it('should verify the email', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL)
+        .set('X-JWT', token)
+        .send({
+          query: gql`
+            mutation {
+              verifyEmail(input: { code: "${code}" }) {
+                ok
+                error
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          console.log(res.body);
+          const {
+            body: {
+              data: {
+                verifyEmail: { ok, error },
+              },
+            },
+          } = res;
+          expect(ok).toBe(true);
+          expect(error).toBe(null);
+        });
+    });
+    it('should not verify the code', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL)
+        .set('X-JWT', token)
+        .send({
+          query: gql`
+            mutation {
+              verifyEmail(input: { code: "abc" }) {
+                ok
+                error
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          console.log(res.body);
+          const {
+            body: {
+              data: {
+                verifyEmail: { ok, error },
+              },
+            },
+          } = res;
+          expect(ok).toBe(false);
+          expect(error).toEqual(expect.any(String));
+        });
+    });
+  });
 });
