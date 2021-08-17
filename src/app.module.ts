@@ -14,6 +14,7 @@ import { MailModule } from './mail/mail.module';
 import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { Category } from './restaurants/entities/category.entity';
 import { RestaurantsModule } from './restaurants/restaurants.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
     }),
     UsersModule,
     RestaurantsModule,
+    AuthModule,
 
     JwtModule.forRoot({ privateKey: process.env.JWT_SECRET }),
   ],
