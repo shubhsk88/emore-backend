@@ -7,6 +7,10 @@ import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
 } from './dtos/create-restaurant-dto';
+import {
+  EditRestaurantInput,
+  EditRestaurantOutput,
+} from './dtos/edit-restaurant-dto';
 import { Category } from './entities/category.entity';
 import { Restaurant } from './entities/restaurant.entity';
 
@@ -45,5 +49,16 @@ export class RestaurantService {
     } catch (error) {
       return { ok: false, error };
     }
+  }
+
+  async editRestaurant(
+    owner: User,
+    id: number,
+    editRestaurantInput: EditRestaurantInput,
+  ): Promise<EditRestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne(id);
+      if (!restaurant) return { ok: false, error: "Restaurant deosn't exist" };
+    } catch (error) {}
   }
 }
