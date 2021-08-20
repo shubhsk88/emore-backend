@@ -77,7 +77,18 @@ export class RestaurantService {
       if (restaurant.ownerId !== owner.id) {
         return { ok: false, error: "YOu can't edit restaurant you don't own" };
       }
-
+      let category: Category = null;
+      if (editRestaurantInput.categoryName)
+        category = await this.getOrCreateCategory(
+          editRestaurantInput.categoryName,
+        );
+      await this.restaurants.save([
+        {
+          id,
+          ...editRestaurantInput,
+          ...(category && { category }),
+        },
+      ]);
       return { ok: true };
     } catch (error) {
       return { ok: false, error: 'Smething went wrong' };
