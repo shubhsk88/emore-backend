@@ -8,6 +8,10 @@ import {
   CreateRestaurantOutput,
 } from './dtos/create-restaurant-dto';
 import {
+  DeleteRestaurantInput,
+  DeleteRestaurantOutput,
+} from './dtos/delete-restaurant-dto';
+import {
   EditRestaurantInput,
   EditRestaurantOutput,
 } from './dtos/edit-restaurant-dto';
@@ -66,13 +70,16 @@ export class RestaurantService {
 
   async editRestaurant(
     owner: User,
-    id: number,
+
     editRestaurantInput: EditRestaurantInput,
   ): Promise<EditRestaurantOutput> {
     try {
-      const restaurant = await this.restaurants.findOne(id, {
-        loadRelationIds: true,
-      });
+      const restaurant = await this.restaurants.findOne(
+        editRestaurantInput.restaurantId,
+        {
+          loadRelationIds: true,
+        },
+      );
       if (!restaurant) return { ok: false, error: "Restaurant deosn't exist" };
       if (restaurant.ownerId !== owner.id) {
         return { ok: false, error: "YOu can't edit restaurant you don't own" };
@@ -84,7 +91,7 @@ export class RestaurantService {
         );
       await this.restaurants.save([
         {
-          id,
+          id: editRestaurantInput.restaurantId,
           ...editRestaurantInput,
           ...(category && { category }),
         },
@@ -92,6 +99,33 @@ export class RestaurantService {
       return { ok: true };
     } catch (error) {
       return { ok: false, error: 'Smething went wrong' };
+    }
+  }
+
+  async deleteRestaurant(
+    owner: User,
+    deleteRestaurantInput: DeleteRestaurantInput,
+  ): Promise<DeleteRestaurantOutput> {
+    try {
+      const foundRestaurant = await this.restaurants.findOne(
+        deleteRestaurantInput.restaurantId,
+      );
+      if (!foundRestaurant) {
+        return {
+          ok: false,
+          error: "The restaurant doesn't exist",
+        };
+      }
+      if (foundRestaurant.ownerId !== owner.id) {
+        return { ok: false, error: 'You are not the owner of this restaurant' };
+      }
+      await this.restaurants.delete(deleteRestaurantInput.restaurantId);
+      return { ok: true };
+    } catch (error) {
+      return {
+        ok: false,
+        error: 'Something went wrong',
+      };
     }
   }
 }

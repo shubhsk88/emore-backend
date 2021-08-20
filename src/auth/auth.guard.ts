@@ -9,7 +9,7 @@ export class AuthGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
   canActivate(context: ExecutionContext) {
     const roles = this.reflector.get<AllowedRoles>(
-      'roles',
+      'role',
       context.getHandler(),
     );
     if (!roles) {
