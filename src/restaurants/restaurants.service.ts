@@ -23,6 +23,19 @@ export class RestaurantService {
     private readonly categories: Repository<Category>,
   ) {}
 
+  async getOrCreateCategory(name: string) {
+    const categoryName = name.trim().toLowerCase();
+    const categorySlug = categoryName.replace(/ /gi, '-');
+    let category = await this.categories.findOne({
+      slug: categorySlug,
+    });
+    if (!category) {
+      category = await this.categories.save(
+        this.categories.create({ slug: categorySlug, name: categoryName }),
+      );
+    }
+    return category;
+  }
   async createRestaurant(
     owner: User,
     createRestaurantInput: CreateRestaurantInput,
@@ -57,8 +70,17 @@ export class RestaurantService {
     editRestaurantInput: EditRestaurantInput,
   ): Promise<EditRestaurantOutput> {
     try {
-      const restaurant = await this.restaurants.findOne(id);
+      const restaurant = await this.restaurants.findOne(id, {
+        loadRelationIds: true,
+      });
       if (!restaurant) return { ok: false, error: "Restaurant deosn't exist" };
-    } catch (error) {}
+      if (restaurant.ownerId !== owner.id) {
+        return { ok: false, error: "YOu can't edit restaurant you don't own" };
+      }
+
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: 'Smething went wrong' };
+    }
   }
 }
