@@ -5,3 +5,5 @@ import { User } from '../entities/user.entity';
 export class UpdateProfileInput extends PartialType(
   PickType(User, ['email', 'password']),
 ) {}
+
+

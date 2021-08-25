@@ -128,4 +128,15 @@ export class RestaurantService {
       };
     }
   }
+  async allCategories() {
+    try {
+      const categories = await this.categories.find();
+      return { ok: true, categories };
+    } catch (error) {
+      return {
+        ok: false,
+        error: "Couldn't load the categories",
+      };
+    }
+  }
 }
