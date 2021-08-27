@@ -4,6 +4,7 @@ import { AuthUser } from 'src/auth/auth-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { ILike, Like, Repository } from 'typeorm';
 import { CategoryInput, CategoryOutput } from './dtos/category.dto';
+import { CreateDishInput, CreateDishOutput } from './dtos/create-dish.dto';
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
@@ -26,6 +27,7 @@ import {
   SearchRestaurantOutput,
 } from './dtos/search-restaurant.dto';
 import { Category } from './entities/category.entity';
+import { Dish } from './entities/dish.entity';
 import { Restaurant } from './entities/restaurant.entity';
 
 @Injectable()
@@ -35,6 +37,8 @@ export class RestaurantService {
     private readonly restaurants: Repository<Restaurant>,
     @InjectRepository(Category)
     private readonly categories: Repository<Category>,
+    @InjectRepository(Dish)
+    private readonly dishes: Repository<Dish>,
   ) {}
 
   async getOrCreateCategory(name: string) {
@@ -200,7 +204,9 @@ export class RestaurantService {
     restaurantId,
   }: FindRestaurantInput): Promise<FindRestaurantOutput> {
     try {
-      const restaurant = await this.restaurants.findOne(restaurantId);
+      const restaurant = await this.restaurants.findOne(restaurantId, {
+        relations: ['menu'],
+      });
       if (!restaurant) return { ok: false, error: 'Restaurant not found' };
       return { ok: true, restaurant };
     } catch (error) {
@@ -229,5 +235,12 @@ export class RestaurantService {
     } catch (error) {
       return { ok: false, error: "Couldn't load the restaurants" };
     }
+  }
+
+  async createDish(
+    owner: User,
+    createDishInput: CreateDishInput,
+  ): Promise<CreateDishOutput> {
+    return { ok: false };
   }
 }
