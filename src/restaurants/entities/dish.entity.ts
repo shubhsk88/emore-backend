@@ -12,7 +12,7 @@ export class DishOptions {
   @Field((type) => [String], { nullable: true })
   choices?: string[];
 
-  @Field((type) => Number)
+  @Field((type) => Number, { nullable: true })
   extra: number;
 }
 
@@ -23,7 +23,6 @@ export class Dish extends CoreEntity {
   @Field((type) => String)
   @Column({ unique: true })
   @IsString()
-  @Length(5, 10)
   name: string;
 
   @Field((type) => Float)
