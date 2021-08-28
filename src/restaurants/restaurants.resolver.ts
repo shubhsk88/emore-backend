@@ -17,6 +17,7 @@ import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
 } from './dtos/create-restaurant-dto';
+import { DeleteDishInput } from './dtos/delete-dish.dto';
 import {
   DeleteRestaurantInput,
   DeleteRestaurantOutput,
@@ -134,5 +135,11 @@ export class DishResolver {
     @Args('input') createDishInput: CreateDishInput,
   ) {
     return this.restaurantService.createDish(owner, createDishInput);
+  }
+
+  @Mutation((type) => DeleteRestaurantOutput)
+  @Role(['OWNER'])
+  deleteDish(@Args('input') deleteDishInput: DeleteDishInput) {
+    return this.restaurantService.deleteDish(deleteDishInput);
   }
 }

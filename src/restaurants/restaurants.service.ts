@@ -9,6 +9,7 @@ import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
 } from './dtos/create-restaurant-dto';
+import { DeleteDishInput, DeleteDishOutput } from './dtos/delete-dish.dto';
 import {
   DeleteRestaurantInput,
   DeleteRestaurantOutput,
@@ -255,6 +256,19 @@ export class RestaurantService {
       return { ok: true };
     } catch (error) {
       return { ok: false, error: 'Something went wrong' };
+    }
+  }
+  async deleteDish(
+    deleteDishInput: DeleteDishInput,
+  ): Promise<DeleteDishOutput> {
+    try {
+      await this.dishes.delete({ id: deleteDishInput.dishId });
+      return { ok: true };
+    } catch (error) {
+      return {
+        ok: 'False',
+        error: 'Something went wrong please try again',
+      };
     }
   }
 }
