@@ -1,7 +1,15 @@
 import { Field, Float, InputType, ObjectType } from '@nestjs/graphql';
 import { IsNumber, IsString, Length } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
+import { Order } from 'src/order/entity/order.entity';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  RelationId,
+} from 'typeorm';
 import { Restaurant } from './restaurant.entity';
 
 @ObjectType()
@@ -53,4 +61,9 @@ export class Dish extends CoreEntity {
   @Field((type) => [DishOptions], { nullable: true })
   @Column({ type: 'json', nullable: true })
   options?: DishOptions[];
+
+  @Field((type) => [Order])
+  @ManyToMany(() => Order)
+  @JoinTable()
+  orders: Order[];
 }
