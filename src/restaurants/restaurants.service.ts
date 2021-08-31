@@ -14,6 +14,7 @@ import {
   DeleteRestaurantInput,
   DeleteRestaurantOutput,
 } from './dtos/delete-restaurant-dto';
+import { EditDishInput, EditDishOutput } from './dtos/edit-dish.dto';
 import {
   EditRestaurantInput,
   EditRestaurantOutput,
@@ -259,14 +260,48 @@ export class RestaurantService {
     }
   }
   async deleteDish(
-    deleteDishInput: DeleteDishInput,
+    owner: User,
+    { dishId }: DeleteDishInput,
   ): Promise<DeleteDishOutput> {
     try {
-      await this.dishes.delete({ id: deleteDishInput.dishId });
+      const dish = await this.dishes.findOne(dishId, {
+        relations: ['restaurant'],
+      });
+      if (!dish) return { ok: false, error: 'Dish not found' };
+      if (dish.restaurant.ownerId !== owner.id)
+        return { ok: false, error: 'You are not allowed to do that ' };
+      await this.dishes.delete(dishId);
       return { ok: true };
     } catch (error) {
       return {
-        ok: 'False',
+        ok: false,
+        error: 'Something went wrong please try again',
+      };
+    }
+  }
+
+  async editDish(
+    owner: User,
+    editDishInput: EditDishInput,
+  ): Promise<EditDishOutput> {
+    try {
+      const dish = await this.dishes.findOne(editDishInput.dishId, {
+        relations: ['restaurant'],
+      });
+      if (!dish) return { ok: false, error: 'Dish not found' };
+      if (dish.restaurant.ownerId !== owner.id)
+        return { ok: false, error: 'You are not allowed to do that ' };
+      await this.dishes.save([
+        {
+          id: editDishInput.dishId,
+          ...editDishInput,
+        },
+      ]);
+
+      return { ok: true };
+    } catch (error) {
+      return {
+        ok: false,
         error: 'Something went wrong please try again',
       };
     }
