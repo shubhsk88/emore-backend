@@ -14,12 +14,13 @@ import {
   OneToMany,
   RelationId,
 } from 'typeorm';
-import { IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsString } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
 
 import { User } from 'src/users/entities/user.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { Dish } from 'src/restaurants/entities/dish.entity';
+import { OrderItem } from './order-item.entity';
 
 export enum OrderStatus {
   Pending = 'Pending',
@@ -48,10 +49,10 @@ export class Order extends CoreEntity {
   })
   driver?: User;
 
-  @Field((type) => [Dish])
-  @ManyToMany(() => Dish)
+  @Field((type) => [OrderItem])
+  @ManyToMany(() => OrderItem)
   @JoinTable()
-  dishes: Dish[];
+  items: OrderItem[];
 
   @Field((type) => Restaurant)
   @ManyToOne((type) => Restaurant, (restaurant) => restaurant.orders, {
@@ -61,9 +62,11 @@ export class Order extends CoreEntity {
 
   @Field((type) => Float)
   @Column()
+  @IsNumber()
   total: number;
 
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.Pending })
   @Field((type) => OrderStatus)
+  @IsEnum(OrderStatus)
   status: OrderStatus;
 }
