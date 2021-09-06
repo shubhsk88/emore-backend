@@ -13,12 +13,22 @@ import {
 import { Restaurant } from './restaurant.entity';
 
 @ObjectType()
+@InputType('DishChoiceInputType', { isAbstract: true })
+export class DishChoice {
+  @Field((type) => String)
+  name: string;
+
+  @Field((type) => Number, { nullable: true })
+  extra: number;
+}
+
+@ObjectType()
 @InputType('DishOptionInputType', { isAbstract: true })
 export class DishOptions {
   @Field((type) => String)
   name: string;
-  @Field((type) => [String], { nullable: true })
-  choices?: string[];
+  @Field((type) => [DishChoice], { nullable: true })
+  choices?: DishChoice[];
 
   @Field((type) => Number, { nullable: true })
   extra: number;
