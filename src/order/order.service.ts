@@ -29,15 +29,18 @@ export class OrderService {
       return { ok: false, error: 'Restaurant not found' };
     }
 
-    items.forEach(async (item) => {
+    const orderSum = 0;
+    for (const item of items) {
       const dish = await this.dishs.findOne(item.dishId);
       if (!dish) {
-        //handle the response
+        return { ok: false, error: 'Dish not found' };
       }
-      await this.orderItems.save(
-        this.orderItems.create({ dish, options: item.options }),
-      );
-    });
+    }
+
+    // await this.orderItems.save(
+    //   this.orderItems.create({ dish, options: item.options }),
+    // );
+
     // const order = await this.orders.save(
     //   this.orders.create({ restaurant, customer }),
     // );

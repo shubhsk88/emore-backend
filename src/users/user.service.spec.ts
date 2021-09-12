@@ -3,7 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from 'src/jwt/jwt.service';
 import { MailService } from 'src/mail/mail.service';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { Verification } from './entities/verification.entity';
 import { UsersService } from './users.service';
 
@@ -66,7 +66,7 @@ describe('User Service', () => {
     const createAccountArgs = {
       email: 'jkjk',
       password: '!@213',
-      role: 0,
+      role: UserRole.Owner,
     };
     const verificationAccountArgs = {
       code: '123456',
@@ -76,7 +76,7 @@ describe('User Service', () => {
       userRepository.findOne.mockResolvedValue({
         id: 1,
         email: 'abc',
-        role: 'A',
+        role: UserRole.Owner,
       });
       const result = await service.createAccount(createAccountArgs);
       expect(result).toMatchObject({
@@ -157,7 +157,7 @@ describe('User Service', () => {
       mockJwtRepository.sign.mockReturnValue(token);
       userRepository.findOne.mockResolvedValue(mockedUser);
       const result = await service.login(loginAccountArgs);
-      expect(jwtService.sign).toHaveBeenCalledWith(expect.any(Object));
+      expect(jwtService.sign).toHaveBeenCalledWith(expect.any(Number));
       expect(result).toEqual({ ok: true, token });
     });
     it('should fail on the exception', async () => {
