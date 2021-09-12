@@ -31,7 +31,7 @@ export class DishOptions {
   choices?: DishChoice[];
 
   @Field((type) => Number, { nullable: true })
-  extra: number;
+  extra?: number;
 }
 
 @InputType('DishInputType', { isAbstract: true })

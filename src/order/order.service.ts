@@ -24,25 +24,58 @@ export class OrderService {
     customer: User,
     { restaurantId, items }: CreateOrderInput,
   ): Promise<CreateOrderOutput> {
-    const restaurant = await this.restaurants.findOne(restaurantId);
-    if (!restaurant) {
-      return { ok: false, error: 'Restaurant not found' };
-    }
-
-    const orderSum = 0;
-    for (const item of items) {
-      const dish = await this.dishs.findOne(item.dishId);
-      if (!dish) {
-        return { ok: false, error: 'Dish not found' };
+    try {
+      const restaurant = await this.restaurants.findOne(restaurantId);
+      if (!restaurant) {
+        return { ok: false, error: 'Restaurant not found' };
       }
+
+      let orderFinalPrice = 0;
+      const orderItems: OrderItem[] = [];
+      for (const item of items) {
+        const dish = await this.dishs.findOne(item.dishId);
+        if (!dish) {
+          return { ok: false, error: 'Dish not found' };
+        }
+
+        if (!item.options || !dish.options) {
+          return { ok: false, error: 'Wrong choices provided' };
+        }
+        let dishFinalPrice = dish.price;
+        for (const itemOption of item.options) {
+          const dishOption = dish.options.find(
+            (option) => option.name === itemOption.name,
+          );
+
+          if (!dishOption)
+            return { ok: false, error: "The choice category doesn't exists" };
+          if (dishOption.extra) {
+            dishFinalPrice += dishOption.extra;
+          } else {
+            const choiceOption = dishOption.choices.find(
+              (choice) => choice.name === itemOption.choice,
+            );
+            dishFinalPrice += choiceOption.extra;
+          }
+        }
+        orderFinalPrice += dishFinalPrice;
+        const orderItem = await this.orderItems.save(
+          this.orderItems.create({ dish, options: item.options }),
+        );
+        orderItems.push(orderItem);
+      }
+
+      const order = await this.orders.save(
+        this.orders.create({
+          restaurant,
+          customer,
+          total: orderFinalPrice,
+          items: orderItems,
+        }),
+      );
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: 'Unable to process the order' };
     }
-
-    // await this.orderItems.save(
-    //   this.orderItems.create({ dish, options: item.options }),
-    // );
-
-    // const order = await this.orders.save(
-    //   this.orders.create({ restaurant, customer }),
-    // );
   }
 }

@@ -61,7 +61,7 @@ export class Order extends CoreEntity {
   restaurant: Restaurant;
 
   @Field((type) => Float)
-  @Column()
+  @Column({ type: 'float' })
   @IsNumber()
   total: number;
 
