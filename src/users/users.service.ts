@@ -81,12 +81,14 @@ export class UsersService {
     }
   }
   async findById(userId: number): Promise<UserProfileOutput> {
-    try {
-      const user = await this.users.findOneOrFail({ id: userId });
-      return { ok: true, user };
-    } catch (error) {
+    const user = await this.users.findOne(userId, {
+      relations: ['restaurants'],
+    });
+    console.log(user);
+    if (!user) {
       return { ok: false, error: "User doesn't exist" };
     }
+    return { ok: true, user };
   }
   async updateProfile(
     userId: number,
