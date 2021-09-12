@@ -84,7 +84,7 @@ export class UsersService {
     const user = await this.users.findOne(userId, {
       relations: ['restaurants'],
     });
-    console.log(user);
+    
     if (!user) {
       return { ok: false, error: "User doesn't exist" };
     }
