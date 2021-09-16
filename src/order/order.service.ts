@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dish } from 'src/restaurants/entities/dish.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
-import { User } from 'src/users/entities/user.entity';
+import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
+import { GetOrdersInput, GetOrdersOutput } from './dtos/get-orders';
 import { OrderItem } from './entity/order-item.entity';
 import { Order } from './entity/order.entity';
 
@@ -77,5 +78,25 @@ export class OrderService {
     } catch (error) {
       return { ok: false, error: 'Unable to process the order' };
     }
+  }
+  async getOrders(
+    user: User,
+    { status }: GetOrdersInput,
+  ): Promise<GetOrdersOutput> {
+    let orders: Order[];
+    if (user.role === UserRole.Client) {
+      orders = await this.orders.find({ where: { customer: user } });
+    } else if (user.role === UserRole.Delivery) {
+      orders = await this.orders.find({ where: { driver: user } });
+    } else {
+      const restaurants = await this.restaurants.find({
+        where: {
+          owner: user,
+        },
+        relations: ['orders'],
+      });
+      orders = restaurants.map((restaurant) => restaurant.orders).flat(1);
+    }
+    return { ok: true, orders };
   }
 }
