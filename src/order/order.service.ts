@@ -5,6 +5,7 @@ import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
+import { GetOrderInput, GetOrderOutput } from './dtos/get-order';
 import { GetOrdersInput, GetOrdersOutput } from './dtos/get-orders';
 import { OrderItem } from './entity/order-item.entity';
 import { Order } from './entity/order.entity';
@@ -83,20 +84,51 @@ export class OrderService {
     user: User,
     { status }: GetOrdersInput,
   ): Promise<GetOrdersOutput> {
-    let orders: Order[];
-    if (user.role === UserRole.Client) {
-      orders = await this.orders.find({ where: { customer: user } });
-    } else if (user.role === UserRole.Delivery) {
-      orders = await this.orders.find({ where: { driver: user } });
-    } else {
-      const restaurants = await this.restaurants.find({
-        where: {
-          owner: user,
-        },
-        relations: ['orders'],
-      });
-      orders = restaurants.map((restaurant) => restaurant.orders).flat(1);
+    try {
+      let orders: Order[];
+      if (user.role === UserRole.Client) {
+        orders = await this.orders.find({
+          where: { customer: user, ...(status && { status }) },
+        });
+      } else if (user.role === UserRole.Delivery) {
+        orders = await this.orders.find({
+          where: { driver: user, ...(status && { status }) },
+        });
+      } else {
+        const restaurants = await this.restaurants.find({
+          where: {
+            owner: user,
+          },
+          relations: ['orders'],
+        });
+        orders = restaurants.map((restaurant) => restaurant.orders).flat(1);
+        if (status) {
+          orders = orders.filter((order) => order.status === status);
+        }
+      }
+      return { ok: true, orders };
+    } catch (error) {
+      return { ok: false, error: 'Something went wrong' };
     }
-    return { ok: true, orders };
+  }
+
+  async getOrder(user: User, { id }: GetOrderInput): Promise<GetOrderOutput> {
+    try {
+      const order = await this.orders.findOne(id, {
+        relations: ['restaurant'],
+      });
+      if (!order) return { ok: false, error: 'Order not found' };
+
+      if (
+        order.customerId !== user.id &&
+        order.driverId !== user.id &&
+        order.restaurant.ownerId !== user.id
+      ) {
+        return { ok: false, error: 'You are not allowed to see this order' };
+      }
+      return { ok: true, order };
+    } catch (error) {
+      return { ok: false, error: 'Something went wrong' };
+    }
   }
 }
