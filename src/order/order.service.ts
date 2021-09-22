@@ -5,10 +5,11 @@ import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
-import { GetOrderInput, GetOrderOutput } from './dtos/get-order';
-import { GetOrdersInput, GetOrdersOutput } from './dtos/get-orders';
+import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
+import { GetOrderInput, GetOrderOutput } from './dtos/get-order.dto';
+import { GetOrdersInput, GetOrdersOutput } from './dtos/get-orders.dto.';
 import { OrderItem } from './entity/order-item.entity';
-import { Order } from './entity/order.entity';
+import { Order, OrderStatus } from './entity/order.entity';
 
 @Injectable()
 export class OrderService {
@@ -75,6 +76,7 @@ export class OrderService {
           items: orderItems,
         }),
       );
+
       return { ok: true };
     } catch (error) {
       return { ok: false, error: 'Unable to process the order' };
@@ -127,6 +129,52 @@ export class OrderService {
         return { ok: false, error: 'You are not allowed to see this order' };
       }
       return { ok: true, order };
+    } catch (error) {
+      return { ok: false, error: 'Something went wrong' };
+    }
+  }
+
+  async editOrder(
+    user: User,
+    { status, id }: EditOrderInput,
+  ): Promise<EditOrderOutput> {
+    try {
+      const order = await this.orders.findOne(id, {
+        relations: ['restaurant'],
+      });
+      if (!order) return { ok: false, error: "Order doesn't exists" };
+      if (
+        order.customerId !== user.id &&
+        order.driverId !== user.id &&
+        order.restaurant.ownerId !== user.id
+      ) {
+        return { ok: false, error: 'You are not allowed to edit this order' };
+      }
+      let canEdit = true;
+      if (user.role === UserRole.Client) canEdit = false;
+      if (user.role === UserRole.Owner) {
+        if (
+          order.status !== OrderStatus.Cooked &&
+          order.status !== OrderStatus.Cooking
+        )
+          canEdit = false;
+      }
+      if (user.role === UserRole.Delivery) {
+        if (
+          order.status !== OrderStatus.Delivered &&
+          order.status !== OrderStatus.PickedUp
+        )
+          canEdit = false;
+      }
+      if (!canEdit)
+        return { ok: false, error: 'You are not authorized to do this' };
+      await this.orders.save([
+        {
+          id,
+          status,
+        },
+      ]);
+      return { ok: true };
     } catch (error) {
       return { ok: false, error: 'Something went wrong' };
     }
