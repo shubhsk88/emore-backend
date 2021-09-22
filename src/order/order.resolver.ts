@@ -31,7 +31,7 @@ export class OrderResolver {
     return this.orderService.getOrders(user, getOrdersInput);
   }
 
-  @Query((type) => GetOrdersOutput)
+  @Query((type) => GetOrderOutput)
   @Role(['Any'])
   getOrder(
     @AuthUser() user: User,

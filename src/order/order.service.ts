@@ -153,17 +153,11 @@ export class OrderService {
       let canEdit = true;
       if (user.role === UserRole.Client) canEdit = false;
       if (user.role === UserRole.Owner) {
-        if (
-          order.status !== OrderStatus.Cooked &&
-          order.status !== OrderStatus.Cooking
-        )
+        if (status !== OrderStatus.Cooked && status !== OrderStatus.Cooking)
           canEdit = false;
       }
       if (user.role === UserRole.Delivery) {
-        if (
-          order.status !== OrderStatus.Delivered &&
-          order.status !== OrderStatus.PickedUp
-        )
+        if (status !== OrderStatus.Delivered && status !== OrderStatus.PickedUp)
           canEdit = false;
       }
       if (!canEdit)
