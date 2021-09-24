@@ -64,7 +64,14 @@ import { OrderItem } from './order/entity/order-item.entity';
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
-      context: async ({ req }) => ({ user: req['user'] }),
+      context: async ({ req, connection }) => {
+        if (req) {
+          return { user: req['user'] };
+        } else {
+          console.log('hiii', connection);
+        }
+      },
+      installSubscriptionHandlers: true,
     }),
 
     MailModule.forRoot({
