@@ -13,11 +13,11 @@ import { UpdateProfileInput } from './dtos/update-accoun.dto';
 import { UserProfileInput, UserProfileOutput } from './dtos/user-profile.dto';
 import { VerifyEmailnput } from './dtos/verify-email.dto';
 import { User } from './entities/user.entity';
-import { UsersService } from './users.service';
+import { UserService } from './users.service';
 
 @Resolver((of) => User)
-export class UsersResolver {
-  constructor(private readonly usersService: UsersService) {}
+export class UserResolver {
+  constructor(private readonly usersService: UserService) {}
   @Query((returns) => String)
   hello(): string {
     return 'hi';

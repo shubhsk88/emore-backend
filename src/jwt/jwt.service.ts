@@ -1,7 +1,5 @@
 import { Global, Inject, Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { User } from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
 
 import { JwtModuleOptions } from './interfaces/jwt-module-options';
 import { CONFIG_OPTIONS } from '../common/common.constant';

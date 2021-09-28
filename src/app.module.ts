@@ -69,12 +69,6 @@ import { OrderItem } from './order/entity/order-item.entity';
         return {
           token: req ? req.headers[TOKEN_KEY] : connection.context[TOKEN_KEY],
         };
-        if (req) {
-          return { headers: req.headers };
-        } else {
-          return { headers: connection.context };
-          // console.log('hiii', connection);
-        }
       },
       installSubscriptionHandlers: true,
     }),
