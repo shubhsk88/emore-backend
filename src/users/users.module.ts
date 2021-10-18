@@ -12,4 +12,4 @@ import { UserService } from './users.service';
   imports: [TypeOrmModule.forFeature([User, Verification])],
   exports: [UserService],
 })
-export class UsersModule {}
+export class UserModule {}

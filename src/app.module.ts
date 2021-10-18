@@ -5,10 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 import { User } from './users/entities/user.entity';
 
-import { UsersModule } from './users/users.module';
+import { UserModule } from './users/users.module';
 import { JwtModule } from './jwt/jwt.module';
-import { MiddlewareConsumer } from '@nestjs/common';
-import { JwtMiddleware } from './jwt/jwt.middleware';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
 import { Restaurant } from './restaurants/entities/restaurant.entity';
@@ -65,7 +63,7 @@ import { OrderItem } from './order/entity/order-item.entity';
     GraphQLModule.forRoot({
       autoSchemaFile: true,
       context: async ({ req, connection }) => {
-        const TOKEN_KEY = 'X-JWT';
+        const TOKEN_KEY = 'x-jwt';
         return {
           token: req ? req.headers[TOKEN_KEY] : connection.context[TOKEN_KEY],
         };
@@ -78,7 +76,7 @@ import { OrderItem } from './order/entity/order-item.entity';
       domain: process.env.MAILGUN_DOMAIN,
       email: process.env.MAILGUN_EMAIL,
     }),
-    UsersModule,
+    UserModule,
     RestaurantsModule,
     AuthModule,
 
