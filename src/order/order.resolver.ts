@@ -1,7 +1,9 @@
+import { Inject } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
+import { PUB_SUB } from 'src/common/common.constant';
 import { User } from 'src/users/entities/user.entity';
 import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
 import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
@@ -10,11 +12,12 @@ import { GetOrdersInput, GetOrdersOutput } from './dtos/get-orders.dto.';
 import { Order } from './entity/order.entity';
 import { OrderService } from './order.service';
 
-const pubsub = new PubSub();
-
 @Resolver((of) => Order)
 export class OrderResolver {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    @Inject(PUB_SUB) private readonly pubSub: PubSub,
+  ) {}
 
   @Mutation((type) => CreateOrderOutput)
   @Role(['Client'])
@@ -52,9 +55,17 @@ export class OrderResolver {
     return this.orderService.editOrder(user, editOrderInput);
   }
 
+  @Mutation((returns) => Boolean)
+  worldHello() {
+    this.pubSub.publish('hello', {
+      helloWorld: 'Hello world',
+    });
+    return true;
+  }
+
   @Subscription((type) => String)
   @Role(['Any'])
   helloWorld(@AuthUser() user: User) {
-    return pubsub.asyncIterator('hello');
+    return this.pubSub.asyncIterator('hello');
   }
 }

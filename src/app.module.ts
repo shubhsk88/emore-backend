@@ -17,6 +17,7 @@ import { Dish } from './restaurants/entities/dish.entity';
 import { OrderModule } from './order/order.module';
 import { Order } from './order/entity/order.entity';
 import { OrderItem } from './order/entity/order-item.entity';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { OrderItem } from './order/entity/order-item.entity';
     JwtModule.forRoot({ privateKey: process.env.JWT_SECRET }),
 
     OrderModule,
+    CommonModule,
   ],
   controllers: [],
   providers: [],
