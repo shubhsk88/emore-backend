@@ -67,6 +67,7 @@ export class OrderResolver {
     filter: (payload, variables, context) => {
       return payload.helloWorld === variables.userId;
     },
+    resolve: (payload) => `there is ${payload.helloWorld}`,
   })
   @Role(['Any'])
   helloWorld(@Args('userId') userId: number) {
