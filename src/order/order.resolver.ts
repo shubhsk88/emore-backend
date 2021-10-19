@@ -56,16 +56,20 @@ export class OrderResolver {
   }
 
   @Mutation((returns) => Boolean)
-  worldHello() {
+  worldHello(@Args('userId') userId: number) {
     this.pubSub.publish('hello', {
-      helloWorld: 'Hello world',
+      helloWorld: userId,
     });
     return true;
   }
 
-  @Subscription((type) => String)
+  @Subscription((type) => String, {
+    filter: (payload, variables, context) => {
+      return payload.helloWorld === variables.userId;
+    },
+  })
   @Role(['Any'])
-  helloWorld(@AuthUser() user: User) {
+  helloWorld(@Args('userId') userId: number) {
     return this.pubSub.asyncIterator('hello');
   }
 }
