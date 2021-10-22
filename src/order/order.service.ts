@@ -79,7 +79,9 @@ export class OrderService {
           items: orderItems,
         }),
       );
-      this.pubSub.publish(NEW_PENDING_ORDER, { pendingOrder: order });
+      this.pubSub.publish(NEW_PENDING_ORDER, {
+        pendingOrder: { order, ownerId: restaurant.ownerId },
+      });
       return { ok: true };
     } catch (error) {
       return { ok: false, error: 'Unable to process the order' };

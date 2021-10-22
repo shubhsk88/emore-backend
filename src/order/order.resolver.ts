@@ -65,10 +65,10 @@ export class OrderResolver {
 
   @Role(['Owner'])
   @Subscription((type) => Order, {
-    filter: (payload) => {
-      console.log(payload);
-      return true;
+    filter: ({ pendingOrder: { ownerId } }, _, { user }) => {
+      return ownerId === user.id;
     },
+    resolve: (payload) => payload.pendingOrder.order,
   })
   pendingOrder() {
     return this.pubSub.asyncIterator(NEW_PENDING_ORDER);
