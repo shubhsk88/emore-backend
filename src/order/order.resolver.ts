@@ -3,7 +3,7 @@ import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
-import { PUB_SUB } from 'src/common/common.constant';
+import { NEW_PENDING_ORDER, PUB_SUB } from 'src/common/common.constant';
 import { User } from 'src/users/entities/user.entity';
 import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
 import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
@@ -55,22 +55,32 @@ export class OrderResolver {
     return this.orderService.editOrder(user, editOrderInput);
   }
 
-  @Mutation((returns) => Boolean)
-  worldHello(@Args('userId') userId: number) {
-    this.pubSub.publish('hello', {
-      helloWorld: userId,
-    });
-    return true;
-  }
+  // @Mutation((returns) => Boolean)
+  // worldHello(@Args('userId') userId: number) {
+  //   this.pubSub.publish('hello', {
+  //     helloWorld: userId,
+  //   });
+  //   return true;
+  // }
 
-  @Subscription((type) => String, {
-    filter: (payload, variables, context) => {
-      return payload.helloWorld === variables.userId;
+  @Role(['Owner'])
+  @Subscription((type) => Order, {
+    filter: (payload) => {
+      console.log(payload);
+      return true;
     },
-    resolve: (payload) => `there is ${payload.helloWorld}`,
   })
-  @Role(['Any'])
-  helloWorld(@Args('userId') userId: number) {
-    return this.pubSub.asyncIterator('hello');
+  pendingOrder() {
+    return this.pubSub.asyncIterator(NEW_PENDING_ORDER);
   }
+  // @Subscription((type) => String, {
+  //   filter: (payload, variables, context) => {
+  //     return payload.helloWorld === variables.userId;
+  //   },
+  //   resolve: (payload) => `there is ${payload.helloWorld}`,
+  // })
+  // @Role(['Any'])
+  // helloWorld(@Args('userId') userId: number) {
+  //   return this.pubSub.asyncIterator('hello');
+  // }
 }
