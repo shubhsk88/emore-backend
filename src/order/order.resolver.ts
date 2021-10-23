@@ -3,7 +3,11 @@ import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
-import { NEW_PENDING_ORDER, PUB_SUB } from 'src/common/common.constant';
+import {
+  COOKED_ORDER,
+  NEW_PENDING_ORDER,
+  PUB_SUB,
+} from 'src/common/common.constant';
 import { User } from 'src/users/entities/user.entity';
 import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
 import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
@@ -72,6 +76,12 @@ export class OrderResolver {
   })
   pendingOrder() {
     return this.pubSub.asyncIterator(NEW_PENDING_ORDER);
+  }
+
+  @Role(['Delivery'])
+  @Subscription((type) => Order)
+  cookedOrder() {
+    return this.pubSub.asyncIterator(COOKED_ORDER);
   }
   // @Subscription((type) => String, {
   //   filter: (payload, variables, context) => {
