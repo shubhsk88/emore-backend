@@ -15,6 +15,7 @@ import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
 import { GetOrderInput, GetOrderOutput } from './dtos/get-order.dto';
 import { GetOrdersInput, GetOrdersOutput } from './dtos/get-orders.dto.';
 import { OrderUpdatesInput } from './dtos/order-updates.dto';
+import { TakeOrderInput, TakeOrderOutput } from './dtos/take-order.dto';
 import { Order } from './entity/order.entity';
 import { OrderService } from './order.service';
 
@@ -61,13 +62,14 @@ export class OrderResolver {
     return this.orderService.editOrder(user, editOrderInput);
   }
 
-  // @Mutation((returns) => Boolean)
-  // worldHello(@Args('userId') userId: number) {
-  //   this.pubSub.publish('hello', {
-  //     helloWorld: userId,
-  //   });
-  //   return true;
-  // }
+  @Role(['Delivery'])
+  @Mutation((type) => TakeOrderOutput)
+  takeOrder(
+    @AuthUser() driver: User,
+    @Args('input') takeOrderInput: TakeOrderInput,
+  ): Promise<TakeOrderOutput> {
+    return this.orderService.takeOrder(driver, takeOrderInput);
+  }
 
   @Role(['Owner'])
   @Subscription((type) => Order, {
@@ -105,14 +107,4 @@ export class OrderResolver {
   orderUpdate(@Args('input') orderUpdateInput: OrderUpdatesInput) {
     return this.pubSub.asyncIterator(NEW_ORDER_UPDATE);
   }
-  // @Subscription((type) => String, {
-  //   filter: (payload, variables, context) => {
-  //     return payload.helloWorld === variables.userId;
-  //   },
-  //   resolve: (payload) => `there is ${payload.helloWorld}`,
-  // })
-  // @Role(['Any'])
-  // helloWorld(@Args('userId') userId: number) {
-  //   return this.pubSub.asyncIterator('hello');
-  // }
 }
