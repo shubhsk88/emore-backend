@@ -5,6 +5,7 @@ import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import {
   COOKED_ORDER,
+  NEW_ORDER_UPDATE,
   NEW_PENDING_ORDER,
   PUB_SUB,
 } from 'src/common/common.constant';
@@ -13,6 +14,7 @@ import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
 import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
 import { GetOrderInput, GetOrderOutput } from './dtos/get-order.dto';
 import { GetOrdersInput, GetOrdersOutput } from './dtos/get-orders.dto.';
+import { OrderUpdatesInput } from './dtos/order-updates.dto';
 import { Order } from './entity/order.entity';
 import { OrderService } from './order.service';
 
@@ -82,6 +84,26 @@ export class OrderResolver {
   @Subscription((type) => Order)
   cookedOrder() {
     return this.pubSub.asyncIterator(COOKED_ORDER);
+  }
+
+  @Role(['Any'])
+  @Subscription((type) => Order, {
+    filter: (
+      { orderUpdate }: { orderUpdate: Order },
+      { input }: { input: OrderUpdatesInput },
+      { user }: { user: User },
+    ) => {
+      if (
+        orderUpdate.driverId !== user.id &&
+        orderUpdate.customerId !== user.id &&
+        orderUpdate.restaurant.ownerId !== user.id
+      )
+        return false;
+      return orderUpdate.id === input.id;
+    },
+  })
+  orderUpdate(@Args('input') orderUpdateInput: OrderUpdatesInput) {
+    return this.pubSub.asyncIterator(NEW_ORDER_UPDATE);
   }
   // @Subscription((type) => String, {
   //   filter: (payload, variables, context) => {

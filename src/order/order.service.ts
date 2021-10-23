@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PubSub } from 'graphql-subscriptions';
 import {
   COOKED_ORDER,
+  NEW_ORDER_UPDATE,
   NEW_PENDING_ORDER,
   PUB_SUB,
 } from 'src/common/common.constant';
@@ -178,12 +179,13 @@ export class OrderService {
         },
       ]);
 
-      console.log(user.role, status);
+      const newOrder = { ...order, status };
       if (status === OrderStatus.Cooked && user.role === UserRole.Owner) {
         this.pubSub.publish(COOKED_ORDER, {
-          cookedOrder: { ...order, status },
+          cookedOrder: newOrder,
         });
       }
+      this.pubSub.publish(NEW_ORDER_UPDATE, { orderUpdate: newOrder });
       return { ok: true };
     } catch (error) {
       return { ok: false, error: 'Something went wrong' };
