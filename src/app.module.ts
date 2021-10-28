@@ -18,8 +18,8 @@ import { OrderModule } from './order/order.module';
 import { Order } from './order/entity/order.entity';
 import { OrderItem } from './order/entity/order-item.entity';
 import { CommonModule } from './common/common.module';
-import { PaymentsModule } from './payments/payments.module';
-import { Payment } from './payments/entity/payment.entity';
+import { PaymentsModule } from './payment/payment.module';
+import { Payment } from './payment/entity/payment.entity';
 
 @Module({
   imports: [
