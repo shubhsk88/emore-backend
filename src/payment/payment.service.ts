@@ -34,6 +34,11 @@ export class PaymentService {
       await this.payments.save(
         this.payments.create({ restaurant, transactionId, user: owner }),
       );
+      const date = new Date();
+      date.setDate(date.getDate() + 7);
+      restaurant.isPromoting = true;
+      restaurant.promotingUntil = date;
+      this.restaurants.save(restaurant);
       return { ok: true };
     } catch (error) {
       return { ok: false, error: "Can't create the payment" };

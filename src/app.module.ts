@@ -20,9 +20,11 @@ import { OrderItem } from './order/entity/order-item.entity';
 import { CommonModule } from './common/common.module';
 import { PaymentsModule } from './payment/payment.module';
 import { Payment } from './payment/entity/payment.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath:

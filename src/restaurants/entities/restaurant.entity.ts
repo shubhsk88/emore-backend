@@ -50,4 +50,12 @@ export class Restaurant extends CoreEntity {
   @OneToMany(() => Order, (order) => order.restaurant)
   @Field((type) => [Order])
   orders: Order[];
+
+  @Field((type) => Boolean)
+  @Column({ type: Boolean, default: false })
+  isPromoting: boolean;
+
+  @Field((type) => Date, { nullable: true })
+  @Column({ type: 'date', nullable: true })
+  promotingUntil: Date;
 }
