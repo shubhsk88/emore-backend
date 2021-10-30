@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { User } from 'src/users/entities/user.entity';
-import { ILike, Like, Repository } from 'typeorm';
+import { ILike, LessThan, Like, Repository } from 'typeorm';
 import { CategoryInput, CategoryOutput } from './dtos/category.dto';
 import { CreateDishInput, CreateDishOutput } from './dtos/create-dish.dto';
 import {
@@ -245,6 +245,17 @@ export class RestaurantService {
     }
   }
 
+  async checkPromotedRestaurants() {
+    const restaurants = await this.restaurants.find({
+      where: { isPromoting: true, promotingUntil: LessThan(new Date()) },
+    });
+    restaurants.forEach(async (restaurant) => {
+      restaurant.isPromoting = false;
+      restaurant.promotingUntil = null;
+      await this.restaurants.save(restaurant);
+    });
+  }
+  
   async createDish(
     owner: User,
     createDishInput: CreateDishInput,
